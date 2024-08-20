@@ -105,3 +105,8 @@ a {
     color-scheme: dark;
   }
 }
+
+@font-face {
+  font-family: 'Omori';
+  src:  url("../fonts/omori.ttf") format('truetype');
+}
