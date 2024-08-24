@@ -6,15 +6,18 @@ import { useRef, useState } from "react";
 import { animate, motion } from "framer-motion";
 import useSound from "use-sound";
 import theme from "../sound/theme.mp3";
+import inputSound from "../sound/input.mp3";
 
 export default function Home() {
   // State & Refs
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [input, setInput] = useState("");
-  const [isPlaying, setIsPlaying] = useState(false)
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentPage, setCurrentPage] = useState("home");
   const lockscreen = useRef(null);
 
   const [play, { stop }] = useSound(theme, { volume: 0.1 });
+  const [playInput] = useSound(inputSound, { volume: 0.4 });
 
   // Functions
   const submitLoginForm = () => {
@@ -25,21 +28,31 @@ export default function Home() {
         { type: "spring", duration: 2, delay: 0.1 }
       );
       setIsUnlocked(true);
-      setIsPlaying(true)
+      setIsPlaying(true);
       play();
+      playInput();
     } else {
       close();
     }
   };
 
   const toggleSound = () => {
-    setIsPlaying(!isPlaying)
+    setIsPlaying(!isPlaying);
 
     if (isPlaying) {
-      stop()
+      stop();
     } else {
-      play()
+      play();
     }
+  };
+
+  const switchPage = (next: string) => {
+    playInput();
+    setCurrentPage(next);
+  };
+
+  const sortStarboard = (style: string) => {
+    playInput()
   }
 
   return (
@@ -63,40 +76,72 @@ export default function Home() {
 
       {isUnlocked && (
         <div className={styles.page}>
-          <h1>STARGAZING</h1>
-          <p className={styles.subtitle}>AN ONLINE ARCHIVE</p>
+          {currentPage === "home" && (
+            <div className={styles.home}>
+              <h1>STARGAZING</h1>
+              <p className={styles.subtitle}>AN ONLINE ARCHIVE</p>
 
-          <div className={styles.navigation}>
-            <section>
-              <Image
-                src={require("../images/lore.png")}
-                height={80}
-                alt="Lore"
-              />
-            </section>
-            <section>
-              <Image
-                src={require("../images/starboard.png")}
-                height={80}
-                alt="Starboard"
-              />
-            </section>
-            <a href="https://discord.gg/XWfu8pgNV4" target="_blank">
-              <section>
-                <Image
-                  src={require("../images/discord.png")}
-                  height={80}
-                  alt="Starboard"
-                />
-              </section>
-            </a>
-          </div>
+              <div className={styles.navigation}>
+                <section onClick={() => switchPage("lore")}>
+                  <Image
+                    src={require("../images/lore.png")}
+                    height={80}
+                    alt="Lore"
+                  />
+                </section>
+                <section onClick={() => switchPage("starboard")}>
+                  <Image
+                    src={require("../images/starboard.png")}
+                    height={80}
+                    alt="Starboard"
+                  />
+                </section>
+                <a href="https://discord.gg/XWfu8pgNV4" target="_blank">
+                  <section onClick={() => switchPage("home")}>
+                    <Image
+                      src={require("../images/discord.png")}
+                      height={80}
+                      alt="Starboard"
+                    />
+                  </section>
+                </a>
+              </div>
+            </div>
+          )}
+
+          {currentPage === "starboard" && (
+            <div className={styles.starboard}>
+              <div className={styles.navbar}>
+                <div className={styles.left}>
+                  <Image
+                    onClick={() => switchPage("home")}
+                    className={styles.back}
+                    src={require("../images/rewind.png")}
+                    height={73}
+                    alt="Rewind"
+                  />
+                  <h2>Starboard</h2>
+                </div>
+
+                <div className={styles.right}>
+                  <h2 onClick={() => sortStarboard("stars")}>Most Starred</h2>
+                  <h2 onClick={() => sortStarboard("asc")}>Oldest</h2>
+                  <h2 onClick={() => sortStarboard("desc")}>Newest</h2>
+                  <h2 onClick={() => sortStarboard("desc")}>User</h2>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
       {isUnlocked && (
         <div className={styles.buttonSound} onClick={toggleSound}>
-          <Image src={require(`../images/speaker${isPlaying ? "" : "off"}.png`)} height={40} alt="Volume" />
+          <Image
+            src={require(`../images/speaker${isPlaying ? "" : "off"}.png`)}
+            height={40}
+            alt="Volume"
+          />
         </div>
       )}
     </main>
